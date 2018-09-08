@@ -10,12 +10,13 @@ spec:
         name: redmine-app
     spec:
       containers:
-      - image: ultimania/study:1.0
+      - image: 192.168.0.21:5000/study/myredmine:1.0
         name: rredmine-app
-        env:
         ports:
         - containerPort: 80
           name: redmine-app
+      imagePullSecrets:
+      - name: regcred
 ---
 apiVersion: v1
 kind: Service
