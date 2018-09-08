@@ -24,6 +24,11 @@ spec:
         volumeMounts:
         - name: redmine-db-pvc
           mountPath: /var/lib/mysql
+      - image: myredmine
+        name: redmine-app
+        ports:
+        - containerPort: 80
+          name: redmine-app
       volumes:
         - name: redmine-db-pvc
           persistentVolumeClaim:
