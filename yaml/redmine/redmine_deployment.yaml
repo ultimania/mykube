@@ -1,17 +1,28 @@
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: v1
+kind: Pod
 metadata:
   name: redmine-app
 spec:
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        app: redmine
-    spec:
-      containers:
-      - image: myredmine
-        name: redmine-app
-        ports:
-        - containerPort: 80
-          name: redmine-app
+  containers:
+  - image: ultimania/study:1.0
+    name: redmine-app
+    ports:
+    - containerPort: 80
+      name: redmine-app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redmine-svc
+spec:
+  selector:
+    name: redmine-app
+  ports:
+  - port: 10080
+    targetPort: 80
+    nodePort: 30003
+    protocol: TCP
+  externalIPs:
+  - 192.168.0.21
+  - 192.168.0.22
+  type: NodePort
