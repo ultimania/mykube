@@ -4,12 +4,12 @@
 
 ## リポジトリ構成
 - mykube
- - yaml
-  - jenkins
-  - nginx
-  - redmine
-  - system
-- README.md
+    - yaml
+        - jenkins
+        - nginx
+        - redmine
+        - system
+    - README.md
 
 ## jenkins
 ~~~bash
@@ -19,6 +19,7 @@ kubectl create -f yaml/jenkins_svc.yaml
 ~~~
 
 |Serviceポート|jenkinsポート|
+|:--:|:--:|
 |8080|8080|
 
 
