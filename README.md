@@ -56,16 +56,18 @@ NAME         STATUS    AGE       EXTERNAL-IP
 kube-node1   Ready     19d       <none>  
 kube-node2   Ready     19d       <none>  
 ```
+
 2. DBサーバ用ボリュームの作成  
-リポジトリをクローンする  
+   リポジトリをクローンする  
 ```# git clone https://github.com/ultimania/mykube.git```  
 <br>
-PersistentVolumeをデプロイする  
+
+   PersistentVolumeをデプロイする  
 ```# cd mykube```  
 ```# kubectl create -f yaml/redmine/mariadb_pv.yaml```  
-```
-<mariadb_pv.yaml>
 
+``` 
+[mariadb_pv.yaml]  
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -80,3 +82,5 @@ spec:
     path: /opt/kube/volumes/vol1
 ```
 
+   PersistentVolumeを確認する  
+```# kubectl describe pv pv001```  
