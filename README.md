@@ -1,9 +1,9 @@
 # 作業手順書
-## 更新履歴
+### 更新履歴
 |更新日|更新者|更新内容|
 |:-----------|:-----------|:-----------|
 |2018.09.14|ultimania|新規作成|
-## 前提条件
+### 前提条件
 * Kubernetesが構築済みであること
 # 環境
 ### 物理ホスト
@@ -22,7 +22,7 @@
 |Flanneld|0.7.1-4||
 |Docker|1.13.1-74|node のみで実行|
 ### Kubernetesクラスタ
-#### Pod
+#### Pod（IPは動的に振られるので参考値）
 |名前|IP|ノード|役割|
 |:-----------|:-----------|:-----------|:------------|
 |ssl-accelerator|172.30.48.2|kube-node1|SSLアクセラレータ<br>ロードバランサ|
@@ -36,7 +36,7 @@
 |:--|:--|:--|:--|:--|:--|
 |client-service|192.168.0.21|80|30001|80|外部アクセスの待受け|
 
-## 手順概要
+### 手順概要
 |No|作業内容|確認事項|作業時間|備考|
 |:-----------|:-----------|:-----------|:-----------|:-----------|
 |1|事前確認|環境が正しい状態であることを確認|5分||
@@ -61,11 +61,31 @@ kube-node2   Ready     19d       <none>
 
 - リポジトリをクローンする  
 ```# git clone https://github.com/ultimania/mykube.git```  
-<br>
+
 
 - PersistentVolumeをデプロイする  
 ```# cd mykube```  
 ```# kubectl create -f yaml/redmine/mariadb_pv.yaml```  
+
+```yaml
+[mariadb_pv.yaml]  
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv001
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /opt/kube/volumes/vol1
+```
+
+- PersistentVolumeClaimをデプロイする  
+```# kubectl create -f yaml/redmine/mariadb_pvc.yaml```  
 
 ```yaml
 [mariadb_pv.yaml]  
@@ -101,4 +121,100 @@ Source:
     Type:       HostPath (bare host directory volume)
     Path:       /opt/kube/volumes/vol1
 No events.
+```
+- PersistentVolumeClaimを確認する  
+```# kubectl describe pvc local-claim```  
+
+```
+Name:           local-claim
+Namespace:      default
+StorageClass: 
+Status:         Bound
+Volume:         pv001
+Labels:         <none>
+Capacity:       10Gi
+Access Modes:   RWO
+No events.
+```
+
+## DBサーバ用認証secretの作成  
+
+- secretをデプロイする  
+```kubectl create -f yaml/redmine/mariadb_secret.yaml```  
+```yaml
+[mariadb_secret.yaml]
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dbsecret
+type: Opaque
+data:
+  root_password: YWRtaW4=
+  user: YWRtaW4=
+  password: YWRtaW4=
+```
+
+- secretを確認する  
+```kubectl describe secret dbsecret```
+```
+Name:           dbsecret
+Namespace:      default
+Labels:         <none>
+Annotations:    <none>
+
+Type:   Opaque
+
+Data
+====
+password:       5 bytes
+root_password:  5 bytes
+user:           5 bytes
+```
+
+
+## DBサーバの作成  
+
+- Deploymentをデプロイする  
+```kubectl create -f yaml/redmine/mariadb_deployment.yaml```  
+```yaml
+[mariadb_deployment.yaml]
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redmine-db
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redmine
+    spec:
+      containers:
+      - image: mariadb
+        name: redmine-db
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: dbsecret
+              key: root_password
+        ports:
+        - containerPort: 3306
+          name: redmine-db
+        volumeMounts:
+        - name: redmine-db-pvc
+          mountPath: /var/lib/mysql
+      volumes:
+        - name: redmine-db-pvc
+          persistentVolumeClaim:
+            claimName: local-claim
+```
+
+- DBサーバ(Pod)が稼働しているかどうか確認する  
+```kubectl get pod -o wide```
+```
+NAME                           READY     STATUS    RESTARTS   AGE       IP            NODE
+redmine-db-585564705-px4rr     1/1       Running   0          10s        172.30.20.4   kube-node2
 ```
