@@ -138,7 +138,7 @@ No events.
 ## DBサーバ用認証secretの作成  
 
 - secretをデプロイする  
-```kubectl create -f yaml/redmine/mariadb_secret.yaml```  
+```# kubectl create -f yaml/redmine/mariadb_secret.yaml```  
 ```yaml
 [mariadb_secret.yaml]
 
@@ -154,7 +154,7 @@ data:
 ```
 
 - secretを確認する  
-```kubectl describe secret dbsecret```
+```# kubectl describe secret dbsecret```
 ```
 Name:           dbsecret
 Namespace:      default
@@ -174,7 +174,7 @@ user:           5 bytes
 ## DBサーバの作成  
 
 - Deploymentをデプロイする  
-```kubectl create -f yaml/redmine/mariadb_deployment.yaml```  
+```# kubectl create -f yaml/redmine/mariadb_deployment.yaml```  
 ```yaml
 [mariadb_deployment.yaml]
 
@@ -211,7 +211,7 @@ spec:
 ```
 
 - DBサーバ(Pod)が稼働しているかどうか確認する  
-```kubectl get pod -o wide```
+```# kubectl get pod -o wide```
 ```
 NAME                           READY     STATUS    RESTARTS   AGE       IP            NODE
 redmine-db-585564705-px4rr     1/1       Running   0          10s        172.30.20.4   kube-node2
