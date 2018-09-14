@@ -88,20 +88,18 @@ spec:
 ```# kubectl create -f yaml/redmine/mariadb_pvc.yaml```  
 
 ```yaml
-[mariadb_pv.yaml]  
+[mariadb_pvc.yaml]  
 
+kind: PersistentVolumeClaim
 apiVersion: v1
-kind: PersistentVolume
 metadata:
-  name: pv001
+  name: local-claim
 spec:
-  capacity:
-    storage: 10Gi
   accessModes:
-    - ReadWriteOnce
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /opt/kube/volumes/vol1
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
 ```
 
 - PersistentVolumeを確認する  
