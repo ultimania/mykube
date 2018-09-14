@@ -5,7 +5,7 @@
 |2018.09.14|ultimania|新規作成|
 ## 前提条件
 * Kubernetesが構築済みであること
-## 環境
+# 環境
 ### 物理ホスト
 |ノード名|IP|ログイン|パスワード|役割|
 |:--|:--|:--|--:|:--|
@@ -47,8 +47,8 @@
 
 * * *
 
-## 手順詳細
-1. 事前確認  
+# 手順詳細
+## 事前確認  
 各ノードが起動していることを確認する。  
 ```# kubectl get node -o wide```
 ```  
@@ -57,17 +57,19 @@ kube-node1   Ready     19d       <none>
 kube-node2   Ready     19d       <none>  
 ```
 
-2. DBサーバ用ボリュームの作成  
-   リポジトリをクローンする  
+## DBサーバ用ボリュームの作成  
+
+- リポジトリをクローンする  
 ```# git clone https://github.com/ultimania/mykube.git```  
 <br>
 
-   PersistentVolumeをデプロイする  
+- PersistentVolumeをデプロイする  
 ```# cd mykube```  
 ```# kubectl create -f yaml/redmine/mariadb_pv.yaml```  
 
-``` 
+```yaml
 [mariadb_pv.yaml]  
+
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -82,5 +84,21 @@ spec:
     path: /opt/kube/volumes/vol1
 ```
 
-   PersistentVolumeを確認する  
+- PersistentVolumeを確認する  
 ```# kubectl describe pv pv001```  
+
+```
+Name:           pv001
+Labels:         <none>
+StorageClass: 
+Status:         Bound
+Claim:          default/local-claim
+Reclaim Policy: Retain
+Access Modes:   RWO
+Capacity:       10Gi
+Message: 
+Source:
+    Type:       HostPath (bare host directory volume)
+    Path:       /opt/kube/volumes/vol1
+No events.
+```
