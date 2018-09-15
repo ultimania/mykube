@@ -1,0 +1,17 @@
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: python-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: python-app
+    spec:
+      containers:
+      - image: 192.168.0.21:5000/study/pythonapp
+        name: python-app
+      imagePullSecrets:
+      - name: regcred
