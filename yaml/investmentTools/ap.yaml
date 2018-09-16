@@ -1,4 +1,3 @@
-
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -11,7 +10,11 @@ spec:
         name: python-app
     spec:
       containers:
-      - image: 192.168.0.21:5000/study/pythonapp
+      - image: 192.168.0.21:5000/study/python-app
         name: python-app
+        ports:
+        - containerPort: 8000
+          name: django-api
       imagePullSecrets:
       - name: regcred
+        
