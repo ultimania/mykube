@@ -24,5 +24,3 @@ spec:
     app: rails-app
   sessionAffinity: None
   type: NodePort
-status:
-  loadBalancer: {}
