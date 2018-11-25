@@ -38,7 +38,7 @@
 192.168.0.20  kube-master
 192.168.0.21  kube-node1
 192.168.0.22  kube-node2
-```
+
 
 ### 前提パッケージのインストール
 '''# yum -y install bash-completion tcpdump chrony wget git'''
