@@ -9,13 +9,19 @@ spec:
       labels:
         name: registry
     spec:
+      volumes:
+      - name: private-registry-volume
+        persistentVolumeClaim:
+          claimName: pv002-claim
       containers:
         - name: registry
           image: registry:2.3.0
           ports:
           - containerPort: 5000
-      nodeSelector:
-        type: node1
+          volumeMounts:
+          - name: private-registry-volume
+            mountPath: /var/lib/registry
+      nodeName: kube-node1
 ---
 apiVersion: v1
 kind: Service
