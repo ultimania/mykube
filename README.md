@@ -38,100 +38,100 @@
 192.168.0.20  kube-master
 192.168.0.21  kube-node1
 192.168.0.22  kube-node2
-
+```
 
 ### 前提パッケージのインストール
-'''# yum -y install bash-completion tcpdump chrony wget git'''
+```# yum -y install bash-completion tcpdump chrony wget git```
 
 
 ### Dockerインストール用レポジトリの設定
-'''# vi /etc/yum.repos.d/virt7-docker-common-release.repo'''
-'''
+```# vi /etc/yum.repos.d/virt7-docker-common-release.repo```
+```
 [virt7-docker-common-release]
 name=virt7-docker-common-release
 baseurl=http://cbs.centos.org/repos/virt7-docker-common-release/x86_64/os/
 gpgcheck=0
-'''
+```
 
 ### Kubernetes関連ソフトウェアのインストール
-'''# yum -y install --enablerepo=virt7-docker-common-release kubernetes etcd flannel'''
+```# yum -y install --enablerepo=virt7-docker-common-release kubernetes etcd flannel```
 
 ### セキュリティ関連機能の無効化
 SELinuxおよびFirewalldを停止します。
-'''# getenforce'''
-'''Disabled'''
+```# getenforce```
+```Disabled```
 
 この通りDisabledになっていない場合は、
-'''# setenforce 0'''
+```# setenforce 0```
 Firewalldの停止
-'''# systemctl disable firewalld'''
-'''# systemctl stop firewalld'''
+```# systemctl disable firewalld```
+```# systemctl stop firewalld```
 
 
 
 ## Master設定
 ### Kubernetes関連ソフトウェアのインストール
-'''yum -y install kubernetes'''
+```yum -y install kubernetes```
 
 ### RSA鍵の作成
-'''# openssl genrsa -out /etc/kubernetes/serviceaccount.key 2048'''
+```# openssl genrsa -out /etc/kubernetes/serviceaccount.key 2048```
 
 ### 各種ファイル設定
 #### vi /etc/kubernetes/config
-'''
+```
 KUBE_MASTER="--master=http://kube-master:8080"
-'''
+```
 
 #### etc/kubernetes/kubelet
-'''
+```
 KUBELET_HOSTNAME="--hostname-override=kube-master"
-'''
+```
 
 #### /etc/kubernetes/apiserver
-'''
+```
 KUBE_API_ADDRESS="--insecure-bind-address=0.0.0.0"
 KUBE_API_PORT="--insecure-port=8080"
 KUBE_ETCD_SERVERS="--etcd-servers=http://kube-master:2379"
 KUBE_API_ARGS="--service_account_key_file=/etc/kubernetes/serviceaccount.key"
-'''
+```
 
 #### /etc/kubernetes/controller-manager
-'''
+```
 KUBE_CONTROLLER_MANAGER_ARGS="--service_account_private_key_file=/etc/kubernetes/serviceaccount.key"
-'''
+```
 
 #### /etc/etcd/etcd.conf
 ETCD_LISTEN_CLIENT_URLS="http://0.0.0.0:2379"
 
 
 ### etcdctlでflannelが利用するネットワーク周りの設定
-'''# etcdctl mk /atomic.io/network/config '{"Network":"172.30.0.0/16", "SubnetLen":24, "Backend":{"Type":"vxlan"} }''''
+```# etcdctl mk /atomic.io/network/config '{"Network":"172.30.0.0/16", "SubnetLen":24, "Backend":{"Type":"vxlan"} }```'
 
-'''# etcdctl ls'''
-'''# systemctl restart flanneld'''
+```# etcdctl ls```
+```# systemctl restart flanneld```
 
 
 ### 関連サービスの起動とサービス登録 
-'''
+```
 for SERVICES in etcd kube-apiserver kube-controller-manager kube-scheduler flanneld; do
     systemctl restart $SERVICES
     systemctl enable $SERVICES
     systemctl status $SERVICES
 done
-'''
+```
 
-'''yum -y install python-rhsm'''
-'''wget http://mirror.centos.org/centos/7/os/x86_64/Packages/python-rhsm-certificates-1.19.10-1.el7_4.x86_64.rpm'''
-'''rpm2cpio python-rhsm-certificates-1.19.10-1.el7_4.x86_64.rpm | cpio -iv --to-stdout ./etc/rhsm/ca/redhat-uep.pem | tee /etc/rhsm/ca/redhat-uep.pem '''
+```yum -y install python-rhsm```
+```wget http://mirror.centos.org/centos/7/os/x86_64/Packages/python-rhsm-certificates-1.19.10-1.el7_4.x86_64.rpm```
+```rpm2cpio python-rhsm-certificates-1.19.10-1.el7_4.x86_64.rpm | cpio -iv --to-stdout ./etc/rhsm/ca/redhat-uep.pem | tee /etc/rhsm/ca/redhat-uep.pem ```
 
 
 
 ## Node設定
 ### Kubernetes関連ソフトウェアのインストール
-'''# yum -y install docker'''
+```# yum -y install docker```
 
 ### etcd無効化
-'''# systemctl status etcd'''
+```# systemctl status etcd```
 
 ### 各種ファイル設定
 #### /etc/kubernetes/kubelet
@@ -144,21 +144,21 @@ FLANNEL_ETCD="http://kube-master:2379"
 
 
 ### 関連サービスの起動とサービス登録 (Node)
-'''
+```
 for SERVICES in kube-proxy kubelet flanneld docker; do
     systemctl restart $SERVICES
     systemctl enable $SERVICES
     systemctl status $SERVICES
 done
-'''
+```
 
 ### kubectl
-'''
+```
 $ kubectl config set-cluster default-cluster --server=http://kube-master:8080
 $ kubectl config set-context default-context --cluster=default-cluster --user=default-admin
 $ kubectl config use-context default-context
 $ kubectl cluster-info
-'''
+```
 
 
 # 作業手順書
