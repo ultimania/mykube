@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kuroko2-rails-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kuroko2
+    spec:
+      containers:
+      - image: 192.168.0.21:5000/study/kuroko2
+        name: kuroko2
+        ports:
+        - containerPort: 3000
+          name: kuroko2
+      imagePullSecrets:
+      - name: regcred
+      nodeName: kube-node1

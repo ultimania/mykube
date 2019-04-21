@@ -18,3 +18,69 @@ spec:
       imagePullSecrets:
       - name: regcred
       nodeName: kube-node1
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: python-app
+spec:
+  concurrencyPolicy: Replace
+  schedule: "*/10 9-15 * * *"
+  replicas: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            name: python-app
+        spec:
+          containers:
+          - image: 192.168.0.21:5000/study/python-app:0.3
+            args:
+            - "/usr/local/pyenv/shims/python"
+            - "/root/myproject/investmentTools/getBlandInfo.py"
+            name: python-app
+            ports:
+            - containerPort: 8000
+              name: django-api
+          imagePullSecrets:
+          - name: regcred
+          nodeName: kube-node1
+
+metadata:
+  name: getStockInfo
+  labels:
+    cronjob: get-stock-info
+spec:
+  concurrencyPolicy: Replace
+  schedule: "*/10 9-15 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: python-app
+            image: jira
+            imagePullPolicy: IfNotPresent
+            env:
+              - name: JIRA_USERNAME
+                value: takeshi.takizawa
+              - name: JIRA_PASSWORD
+                value: ***
+            args:
+            - "/bin/sh"
+            - "/root/entrypoint.sh"
+            volumeMounts:
+              - name: entrypoint
+                mountPath: /root/entrypoint.sh
+                subPath: entrypoint.sh
+              - name: jirad
+                mountPath: /root/.jira.d
+          restartPolicy: OnFailure
+          volumes:
+            - name: entrypoint
+              configMap:
+                name: list-unresolved-entrypoint
+            - name: jirad
+              configMap:
+                name: list-unresolved-jirad
