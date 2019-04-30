@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: python3-ap
+spec:
+  selector:
+    name: python3-ap
+  ports:
+  - port: 10022
+    targetPort: 22
+    nodePort: 30022
+    protocol: TCP
+    name: python3-ssh
+  - port: 10023
+    targetPort: 3000
+    nodePort: 30023
+    protocol: TCP
+    name: python3-debug
+  externalIPs:
+  - 192.168.0.21
+  - 192.168.0.22
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: python3-ap
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: python3-ap
+    spec:
+      containers:
+      - image: 192.168.0.21:5000/study/python-app:0.5
+        name: python3-ap
+        ports:
+        - containerPort: 10022
+          name: python3-ssh
+        - containerPort: 10023
+          name: python3-debug
+      imagePullSecrets:
+      - name: regcred
+      nodeName: kube-node1
