@@ -56,4 +56,3 @@ spec:
           name: redmine-http
       imagePullSecrets:
       - name: regcred
-      nodeName: kube-node1
