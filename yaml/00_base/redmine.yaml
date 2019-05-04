@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redmine-svc
+spec:
+  selector:
+    name: redmine
+  ports:
+  - port: 10080
+    targetPort: 3000
+    nodePort: 30080
+    protocol: TCP
+    name: redmine-http
+  externalIPs:
+  - 192.168.0.21
+  - 192.168.0.22
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redmine-dp
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        name: redmine
+    spec:
+      containers:
+      - image: 192.168.0.21:5000/study/mysql
+        name: redmine-db
+        env: 
+        - name: MYSQL_USER
+          value: redmine
+        - name: MYSQL_PASSWORD
+          value: secret
+        - name: MYSQL_DATABASE
+          value: redmine
+        - name: MYSQL_RANDOM_ROOT_PASSWORD
+          value: 1
+        ports:
+        - containerPort: 3306
+          name: redmine-http
+      - image: 192.168.0.21:5000/study/redmine
+        name: redmine-ap
+        env: 
+        - name: REDMINE_DB_MYSQL
+          value: redmine-db
+        - name: REDMINE_DB_USERNAME
+          value: redmine
+        - name: REDMINE_DB_PASSWORD
+          value: secret
+        ports:
+        - containerPort: 3000
+          name: redmine-http
+      imagePullSecrets:
+      - name: regcred
+      nodeName: kube-node1
