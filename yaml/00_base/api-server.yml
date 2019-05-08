@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-svc
+spec:
+  selector:
+    name: api-server
+  ports:
+  - port: 10083
+    targetPort: 8000
+    nodePort: 30085
+    protocol: TCP
+    name: api-http
+  externalIPs:
+  - 192.168.0.21
+  - 192.168.0.22
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: api-server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: api-server
+    spec:
+      hostname: api-server
+      containers:
+      - name: mysql-server
+        image: mysql:5.7
+        env: 
+        - name: MYSQL_DATABASE
+          value: django
+        - name: MYSQL_USER
+          value: apiadmin
+        - name: MYSQL_PASSWORD
+          value: apiadmin_pwd
+        - name: MYSQL_ROOT_PASSWORD
+          value: root_pwd
+        args:
+        - --character-set-server=utf8mb4
+        - --collation-server=utf8mb4_unicode_ci
+        ports:
+        - containerPort: 3306
+          name: api-mysql
+        volumeMounts:
+        - name: api-mysql-pv
+          mountPath: /var/lib/mysql
+      - name: api-server
+        image: pshost02:5000/study/api-server:1.0
+        ports:
+        - containerPort: 8000
+          name: django-server
+      volumes:
+        - name: api-mysql-pv
+          persistentVolumeClaim:
+            claimName: pv006-claim
