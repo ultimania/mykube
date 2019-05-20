@@ -20,11 +20,20 @@
 
 ## ２．Dockerレジストリ作成
     # git clone https://github.com/ultimania/mykube.git
-    # kubectl create secret docker-registry regcred --docker-server=<your-registry-server> --docker-username=<your-name> --docker-password=<your-pword> --docker-email=<your-email>
+    # kubectl create secret docker-registry ${SECRET_NAME} --docker-server=${REGISTRY_FQDN} --docker-username=${REGISTRY_USERNAME} --docker-password=${REGISTRY_PASSWORD} --docker-email=${REGISTRY_EMAIL}
     # kubectl create -f ./yaml/system/pv-pv002.yaml
     # kubectl create -f ./yaml/system/registry-private.yaml
 
-## ３．イメージ作成/確認
+|変数名|設定内容|
+|:-----------|:-----------|
+|SECRET_NAME|任意のSecret名|
+|REGISTRY_FQDN|レジストリのFQDN|
+|REGISTRY_USERNAME|ログインユーザ名|
+|REGISTRY_PASSWORD|ログインパスワード|
+|REGISTRY_EMAIL|Emailアドレス|
+
+
+## ３．コンテナからイメージ作成/確認
     # export container_id=<コンテナID>
     # export image_name=<イメージ名>
     # export version=<バージョン>
@@ -39,7 +48,7 @@
 
 
 ## ４．永続ボリューム作成  
-    # kubectl create -f ./yaml/system/myvolume.yaml
+    # kubectl create -f ./yaml/template/myvolume.yaml
 ```yaml
 [myvolume.yaml]
 apiVersion:                             # v1固定
@@ -79,7 +88,7 @@ spec:
 
 
 ## ５．Secretの作成
-    # kubectl create -f ./yaml/system/mysecret.yaml
+    # kubectl create -f ./yaml/template/mysecret.yaml
 ```yaml
 [mysecret.yaml]
 apiVersion:                 # "v1"固定
@@ -98,7 +107,7 @@ data:                       # 値はBase64エンコード
 ```
 
 ## ６．Pod(Deployment)の作成
-    # kubectl create -f ./yaml/system/mariadb.yaml
+    # kubectl create -f ./yaml/template/mariadb.yaml
 ```yaml
 [mariadb.yaml]
 apiVersion:                 # Deploymentを使用するのでextensions/v1beta1
