@@ -11,6 +11,7 @@
 
 
 * ネットワーク構成は以下のとおり
+
 |No|Machine|Hostname|IP Address|
 |:--|:--|:--|:--|
 |1|Master|pshost01|192.168.0.20|
