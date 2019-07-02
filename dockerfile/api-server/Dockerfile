@@ -29,6 +29,7 @@ RUN set -x && \
     django-admin startproject ${PROJECT_NAME}
 
 # Djangoプロジェクトの作成
+COPY ./centos7.repo /etc/yum.repos.d/
 COPY ./my_setting.py /root/${PROJECT_NAME}/${PROJECT_NAME}/
 COPY ./startup.sh /root/
 ENV DB_HOST="172.30.73.4"
