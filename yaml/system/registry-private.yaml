@@ -21,6 +21,8 @@ spec:
           volumeMounts:
           - name: private-registry-volume
             mountPath: /var/lib/registry
+      nodeSelector:
+        type: node1
 ---
 apiVersion: v1
 kind: Service
@@ -35,6 +37,7 @@ spec:
     nodePort: 30004
     protocol: TCP
   externalIPs:
+  - 192.168.0.20
   - 192.168.0.21
   - 192.168.0.22
   type: NodePort

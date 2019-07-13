@@ -3,12 +3,14 @@ LABEL maintainer="Ultimania <yng.ultimania.gmail.com>"
 WORKDIR /root
 
 # Packagesインストール
+COPY ./centos7.repo /etc/yum.repos.d/
 ENV PATH="$PATH:/usr/local/python/bin"
 ENV PYTHON_VERSION="3.6.0"
 ENV DJANGO_VERSION="2.1.2"
 ENV PROJECT_NAME="myproject"
 ENV DB_NAME="django"
 RUN set -x && \
+    echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
     yum -y install git zlib-devel bzip2 bzip2-devel readline-devel openssl-devel sqlite3 sqlite-devel gcc make && \
     cd /usr/local/src && \
     curl -O https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz && \
@@ -26,13 +28,14 @@ RUN set -x && \
     pip install djangorestframework-jwt && \
     pip install PyMySQL && \
     pip install uwsgi && \
+    pip install django-hamlpy && \
+    pip install BeautifulSoup4 && \
     django-admin startproject ${PROJECT_NAME}
 
 # Djangoプロジェクトの作成
-COPY ./centos7.repo /etc/yum.repos.d/
 COPY ./my_setting.py /root/${PROJECT_NAME}/${PROJECT_NAME}/
 COPY ./startup.sh /root/
-ENV DB_HOST="172.30.73.4"
+ENV DB_HOST="172.17.0.2"
 RUN set -x && \
     cat ~/${PROJECT_NAME}/${PROJECT_NAME}/my_setting.py >> ~/${PROJECT_NAME}/${PROJECT_NAME}/settings.py && \
     python ~/${PROJECT_NAME}/manage.py makemigrations && \
