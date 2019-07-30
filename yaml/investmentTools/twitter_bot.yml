@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: api-svc
+  name: twitter-api
 spec:
   selector:
-    name: api-server
+    name: twitter-api
   ports:
-  - port: 10084
-    targetPort: 8001
-    nodePort: 30086
+  - port: 10083
+    targetPort: 8000
+    nodePort: 30085
     protocol: TCP
     name: api-http
   externalIPs:
@@ -19,13 +19,13 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: api-server
+  name: twitter-api
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        name: api-server
+        name: twitter-api
     spec:
       hostname: api-server
       containers:
@@ -50,9 +50,9 @@ spec:
         - name: api-mysql-pv
           mountPath: /var/lib/mysql
       - name: api-server
-        image: pshost02:5000/study/django:1.0
+        image: pshost02:5000/study/django:1.1
         ports:
-        - containerPort: 8001
+        - containerPort: 8000
           name: django-server
         volumeMounts:
         - name: api-server-pv
@@ -60,7 +60,7 @@ spec:
       volumes:
         - name: api-mysql-pv
           persistentVolumeClaim:
-            claimName: django-dev-db
+            claimName: pv006-claim
         - name: api-server-pv
           persistentVolumeClaim:
-            claimName: django-dev-ap
+            claimName: pv007-claim

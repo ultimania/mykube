@@ -2,7 +2,7 @@ FROM centos
 LABEL maintainer="Ultimania <yng.ultimania.gmail.com>"
 WORKDIR /root
 
-# Packagesインストール
+# OS Packagesインストール
 COPY ./centos7.repo /etc/yum.repos.d/
 ENV PATH="$PATH:/usr/local/python/bin"
 ENV PYTHON_VERSION="3.6.0"
@@ -21,7 +21,11 @@ RUN set -x && \
     make install && \
     cd ~ && \
     ln -s /usr/local/python/bin/python3 /usr/local/bin/python && \
-    ln -s /usr/local/python/bin/pip3 /usr/local/bin/pip && \
+    ln -s /usr/local/python/bin/pip3 /usr/local/bin/pip
+
+# pip Packagesインストール
+RUN set -x && \
+    pip install --upgrade pip && \
     pip install django==${DJANGO_VERSION} && \
     pip install djangorestframework && \
     pip install django-filter && \
@@ -30,6 +34,13 @@ RUN set -x && \
     pip install uwsgi && \
     pip install django-hamlpy && \
     pip install BeautifulSoup4 && \
+    pip install mpl_finance && \
+    pip install pandas && \
+    pip install scikit-learn && \
+    pip install django-widget-tweaks && \
+    pip install pycrypto && \
+    pip install tweepy && \
+    pip install nose && \
     django-admin startproject ${PROJECT_NAME}
 
 # Djangoプロジェクトの作成
