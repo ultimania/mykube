@@ -50,7 +50,7 @@ spec:
         - name: api-mysql-pv
           mountPath: /var/lib/mysql
       - name: api-server
-        image: pshost02:5000/study/django:1.0
+        image: pshost02:5000/study/django:1.1
         ports:
         - containerPort: 8001
           name: django-server

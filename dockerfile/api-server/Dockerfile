@@ -11,7 +11,7 @@ ENV PROJECT_NAME="myproject"
 ENV DB_NAME="django"
 RUN set -x && \
     echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    yum -y install git zlib-devel bzip2 bzip2-devel readline-devel openssl-devel sqlite3 sqlite-devel gcc make && \
+    yum -y install xz xz-devel git zlib-devel bzip2 bzip2-devel readline-devel openssl-devel sqlite3 sqlite-devel gcc make && \
     cd /usr/local/src && \
     curl -O https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz && \
     tar xvzf Python-${PYTHON_VERSION}.tgz && \
@@ -41,6 +41,8 @@ RUN set -x && \
     pip install pycrypto && \
     pip install tweepy && \
     pip install nose && \
+    pip install mecab-python3 && \
+    pip install gensim && \
     django-admin startproject ${PROJECT_NAME}
 
 # Djangoプロジェクトの作成
