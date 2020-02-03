@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redmine-svc
+spec:
+  selector:
+    name: redmine
+  ports:
+  - port: 10080
+    targetPort: 3000
+    nodePort: 30080
+    protocol: TCP
+    name: redmine-http
+  externalIPs:
+  - 192.168.0.21
+  - 192.168.0.22
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redmine-dp
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: redmine
+    spec:
+      hostname: redmine
+      containers:
+      - name: redmine-db
+        image: mysql:5.7
+        env: 
+        - name: MYSQL_DATABASE
+          value: redmine
+        - name: MYSQL_USER
+          value: redmine
+        - name: MYSQL_PASSWORD
+          value: redmine_pwd
+        - name: MYSQL_ROOT_PASSWORD
+          value: root_pwd
+        - name: MYSQL_RANDOM_ROOT_PASSWORD
+          value: 1
+        args:
+        - --character-set-server=utf8mb4
+        - --collation-server=utf8mb4_unicode_ci
+        ports:
+        - containerPort: 3306
+          name: redmine-db
+        volumeMounts:
+        - name: redmine-db-pv
+          mountPath: /var/lib/mysql
+      - image: redmine
+        name: redmine-ap
+        env: 
+        - name: REDMINE_DB_MYSQL
+          value: redmine
+        - name: REDMINE_DB_USERNAME
+          value: redmine
+        - name: REDMINE_DB_PASSWORD
+          value: redmine_pwd
+        - name: REDMINE_DB_DATABASE
+          value: redmine
+        ports:
+        - containerPort: 3000
+          name: redmine-http
+      imagePullSecrets:
+      - name: regcred
+      volumes:
+        - name: redmine-db-pv
+          persistentVolumeClaim:
+            claimName: pv003-claim
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: WebFrontend
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: redmine-dp
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 20
+

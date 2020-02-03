@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: registry
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: registry
+    spec:
+      volumes:
+      - name: private-registry-volume
+        persistentVolumeClaim:
+          claimName: pv002-claim
+      containers:
+        - name: registry
+          image: registry:2.3.0
+          ports:
+          - containerPort: 5000
+          volumeMounts:
+          - name: private-registry-volume
+            mountPath: /var/lib/registry
+      nodeSelector:
+        type: node1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: registry-svc
+spec:
+  selector:
+    name: registry
+  ports:
+  - port: 5000
+    targetPort: 5000
+    nodePort: 30004
+    protocol: TCP
+  externalIPs:
+  - 192.168.0.20
+  - 192.168.0.21
+  - 192.168.0.22
+  type: NodePort

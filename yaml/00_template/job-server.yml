@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: job-svc
+spec:
+  selector:
+    name: job-server
+  ports:
+  - port: 10084
+    targetPort: 8081
+    nodePort: 30086
+    protocol: TCP
+    name: job-http
+  externalIPs:
+  - 192.168.0.21
+  - 192.168.0.22
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: job-server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: job-server
+    spec:
+      hostname: job-server
+      containers:
+      - name: job-server
+        image: pshost02:5000/study/job-server:1.0
+        ports:
+        - containerPort: 8081
+          name: azkaban-http

@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redmine-app
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: redmine-app
+    spec:
+      containers:
+      - image: 192.168.0.21:5000/study/myredmine:1.0
+        name: rredmine-app
+        ports:
+        - containerPort: 80
+          name: redmine-app
+      imagePullSecrets:
+      - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redmine-svc
+spec:
+  selector:
+    name: redmine-app
+  ports:
+  - port: 10080
+    targetPort: 80
+    nodePort: 30003
+    protocol: TCP
+  externalIPs:
+  - 192.168.0.21
+  - 192.168.0.22
+  type: NodePort

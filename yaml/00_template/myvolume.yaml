@@ -1,0 +1,33 @@
+apiVersion:                             # v1固定
+    v1
+kind:                                   # PersistentVolume固定
+    PersistentVolume
+metadata:
+    name:
+        mypv                            # ボリューム名
+spec:
+    capacity:
+        storage:
+            100Gi                       # ボリュームサイズ
+    accessModes:
+        -   ReadWriteOnce               # アクセス方式
+    persistentVolumeReclaimPolicy:      # データ削除ポリシー
+        Retain
+    hostPath:                           # ボリューム作成先
+        path: 
+            /opt/kube/volumes/mypv
+---
+apiVersion:                             # v1固定
+    v1
+kind:                                   # PersistentVolumeClaim固定
+    PersistentVolumeClaim
+metadata:
+    name:                               # 請求名
+        mypvc
+spec:
+    accessModes:
+    -   ReadWriteOnce                   # アクセス方式
+    resources:
+        requests:
+            storage: 
+                100Gi                   # 請求サイズ

@@ -1,0 +1,122 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: django-dev-ap
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /opt/kube/volumes/django-dev-ap
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: django-dev-db
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /opt/kube/volumes/django-dev-db
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: django-dev-ap
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: django-dev-db
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-dev
+spec:
+  selector:
+    name: django-dev
+  ports:
+  - port: 10000
+    targetPort: 8000
+    nodePort: 30000
+    protocol: TCP
+    name: django-server
+  - port: 10001
+    targetPort: 8888
+    nodePort: 30001
+    protocol: TCP
+    name: jupyter
+  externalIPs:
+  - 192.168.0.21
+  - 192.168.0.22
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: django-dev
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: django-dev
+    spec:
+      hostname: django-dev
+      containers:
+      - name: db-server
+        image: mysql:5.7
+        env: 
+        - name: MYSQL_DATABASE
+          value: django
+        - name: MYSQL_USER
+          value: apiadmin
+        - name: MYSQL_PASSWORD
+          value: apiadmin_pwd
+        - name: MYSQL_ROOT_PASSWORD
+          value: root_pwd
+        args:
+        - --character-set-server=utf8mb4
+        - --collation-server=utf8mb4_unicode_ci
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: db-volume
+          mountPath: /var/lib/mysql
+      - name: ap-server
+        image: pshost02:5000/study/django:1.0
+        ports:
+        - containerPort: 8000
+          name: django-server
+        - containerPort: 8888
+          name: jupyter
+        volumeMounts:
+        - name: ap-volume
+          mountPath: /opt
+      volumes:
+        - name: db-volume
+          persistentVolumeClaim:
+            claimName: django-dev-db
+        - name: ap-volume
+          persistentVolumeClaim:
+            claimName: django-dev-ap

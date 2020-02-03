@@ -1,0 +1,42 @@
+apiVersion:                 # Deploymentを使用するのでextensions/v1beta1
+    extensions/v1beta1
+kind:                       # Deployment固定
+    Deployment
+metadata:
+    name:                   # ポッド名
+        mymariadb
+spec:
+  replicas:                 # 任意のスケール値
+    1
+  template:
+    spec:
+        containers:             # ポッド内で起動するコンテナ（複数指定可）
+        -   image:              # コンテナイメージ
+                pshost02:5000/study/mariadb:1.0
+            name:               # コンテナ名
+                redmine-db
+            env:                # コンテナに渡す環境変数（複数指定可）
+            -   name:           # 変数1
+                    MYSQL_DATABASE
+                value:          # 値
+                    redmine
+            -   name:           # 変数2
+                    MYSQL_DATABASE
+                valueFrom:      # 値（Secretから取得）
+                    secretKeyRef:
+                        name:   # Secret名
+                            mysecret
+                        key:    # Secretキー
+                            root_password
+            ports:              # コンテナ外部へ開放するポート番号（複数指定可）
+            -   containerPort:  # ポート番号
+                    3306
+                name:           # 名前も付けられる
+                    redmine-db
+            volumeMounts:       # コンテナで使用するボリュームとマウントポイント（複数指定可）
+            -   name: redmine-db-volume
+                mountPath: /var/lib/mysql
+        volumes:                # ボリュームに対する請求
+            -   name: redmine-db-volume
+                persistentVolumeClaim:
+                    claimName: mypvc
