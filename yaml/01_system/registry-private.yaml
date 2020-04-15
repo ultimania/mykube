@@ -1,13 +1,16 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: registry
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: registry
   template:
     metadata:
       labels:
-        name: registry
+        app: registry
     spec:
       volumes:
       - name: private-registry-volume
@@ -21,8 +24,6 @@ spec:
           volumeMounts:
           - name: private-registry-volume
             mountPath: /var/lib/registry
-      nodeSelector:
-        type: node1
 ---
 apiVersion: v1
 kind: Service
@@ -37,7 +38,6 @@ spec:
     nodePort: 30004
     protocol: TCP
   externalIPs:
-  - 192.168.0.20
-  - 192.168.0.21
-  - 192.168.0.22
+  - 192.168.11.21
+  - 192.168.11.22
   type: NodePort
